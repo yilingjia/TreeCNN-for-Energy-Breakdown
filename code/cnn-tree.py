@@ -13,7 +13,7 @@ if torch.cuda.is_available():
     cuda_av = True
 
 torch.manual_seed(0)
-
+num_folds = 5
 
 class CustomCNN(nn.Module):
     def __init__(self):
@@ -38,7 +38,7 @@ class CustomCNN(nn.Module):
         bn1 = self.bn1(self.act(e1))
         e2 = self.bn2(self.conv2(bn1))
         e3 = self.bn3(self.conv3(e2))
-        e4 = self.conv6(e3)
+        e4 = self.conv4(e3)
         return e4
 
 
@@ -163,9 +163,9 @@ def disagg_fold(dataset, fold_num, lr, p):
             test_pr = model(*test_params)
             test_loss = loss_func(test_pr, test_out)
 
-            test_losses[t] = test_loss.data[0]
-            valid_losses[t] = valid_loss.data[0]
-            train_losses[t] = loss.data[0]
+            test_losses[t] = test_loss.item()
+            valid_losses[t] = valid_loss.item()
+            train_losses[t] = loss.item()
             # np.save("./baseline/p_50_loss")
 
             if t % 1000 == 0:
@@ -177,7 +177,7 @@ def disagg_fold(dataset, fold_num, lr, p):
                 train_pr = torch.clamp(train_pr, min=0.)
                 train_pred[t] = train_pr
 
-            print("Round:", t, "Training Error:", loss.data[0], "Validation Error:", valid_loss.data[0], "Test Error:", test_loss.data[0])
+            print("Round:", t, "Training Error:", loss.item(), "Validation Error:", valid_loss.item(), "Test Error:", test_loss.item())
 
         loss.backward()
         optimizer.step()
